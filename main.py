@@ -18,7 +18,7 @@ print("(1/4) Loading local Whisper model into memory")
 # Run local model on CPU.
 # Medium sized model seems to give a sufficient balance
 # between performance and resource requirements/usage.
-model = WhisperModel("large-v3", device="cpu", compute_type="int8")
+model = WhisperModel("medium", device="cpu", compute_type="int8")
 
 
 # 2. Retrieve default Speaker 
@@ -58,8 +58,12 @@ print(transcript if transcript else "[Ingen tale registrert]")
 # 6. Summarize via local Ollama
 if transcript:
     print("\n(5/5) Genererer sammendrag via Ollama...")
+
+    SERVER_IP = "192.168.0.180"
     try:
-        response = ollama.chat(
+        client = ollama.Client(host=f"http://{SERVER_IP}:30068") 
+        response = client.chat (        # Offload processing to external server
+        # response = ollama.chat(      # For local Processing
             model='llama3',
             messages=[{
                 'role': 'user',
