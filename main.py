@@ -11,7 +11,15 @@ TARGET_SAMPLE_RATE = 16000  # Sample rate (16000 is native for whisper)
 
 # 1. Load local whisper engine
 print("(1/4) Loading local Whisper model into memory")
-model = WhisperModel("medium", device="cpu", compute_type="int8")
+
+# For Nvidia GPUs with CUDA cores
+# model = WhisperModel("medium", device="cuda", compute_type="float16")
+
+# Run local model on CPU.
+# Medium sized model seems to give a sufficient balance
+# between performance and resource requirements/usage.
+model = WhisperModel("large-v3", device="cpu", compute_type="int8")
+
 
 # 2. Retrieve default Speaker 
 default_speaker = sc.default_speaker()
@@ -21,7 +29,7 @@ print(f"\n[Info] Capturing Output: {default_speaker.name}")
 loopback_mic = sc.get_microphone(id=default_speaker.id, include_loopback=True)
 
 # 3. Capture system default audio
-print(f"(2/4) Recording {DURATION} seconds of system audio...")
+print(f"(2/5) Recording {DURATION} seconds of system audio...")
 
 with loopback_mic.recorder(samplerate=TARGET_SAMPLE_RATE) as mic:
     # Captured audio is stored as an array
@@ -40,7 +48,7 @@ else:
 audio_mono = audio_mono.astype(np.float32)
 
 # 5. Transcribe audio (Defaulted to norwegian)
-print("[3/4] Transcribing system audio...")
+print("(4/5) Transcribing system audio...")
 segments, _ = model.transcribe(audio_mono, language="no", beam_size=5)
 transcript = " ".join([segment.text for segment in segments]).strip()
 
@@ -49,7 +57,7 @@ print(transcript if transcript else "[Ingen tale registrert]")
 
 # 6. Summarize via local Ollama
 if transcript:
-    print("\n[4/4] Genererer sammendrag via Ollama...")
+    print("\n(5/5) Genererer sammendrag via Ollama...")
     try:
         response = ollama.chat(
             model='llama3',
