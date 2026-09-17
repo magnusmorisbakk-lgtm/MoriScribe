@@ -1,4 +1,6 @@
 import os
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+
 import numpy as np
 import soundcard as sc
 from faster_whisper import WhisperModel
@@ -9,7 +11,7 @@ TARGET_SAMPLE_RATE = 16000  # Sample rate (16000 is native for whisper)
 
 # 1. Load local whisper engine
 print("(1/4) Loading local Whisper model into memory")
-model = WhisperModel("base", device="cpu", compute_type="int8")
+model = WhisperModel("medium", device="cpu", compute_type="int8")
 
 # 2. Retrieve default Speaker 
 default_speaker = sc.default_speaker()
