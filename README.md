@@ -83,7 +83,7 @@ volumes:
     Bash
     
     ```
-    git clone [https://github.com/your-username/MoriScribe.git](https://github.com/your-username/MoriScribe.git)
+    git clone git@github.com:magnusmorisbakk-lgtm/MoriScribe.git
     cd MoriScribe
     ```
     
