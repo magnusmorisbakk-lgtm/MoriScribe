@@ -1,7 +1,7 @@
 # config.py
 
 # Audio capture setting
-DURATION = 20                   # Recording duration in seconds
+BLOCK_SIZE = 4096
 TARGET_SAMPLE_RATE = 16000      # Sample rate (16000 Hz is native for Whisper)
 CHUNK_DURATION = 4              # Records 4 second audio chunks
 OVERLAP_DURATION = 1            # 1 second overlap between chunks

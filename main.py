@@ -1,25 +1,29 @@
 import io
-import os
+import queue
+import signal
+import sys
+import threading
+import time
 import wave
 import requests
 import numpy as np
 import soundcard as sc
 import ollama
 
-# -------------------------
-# Configuration and settings
-# -------------------------
-DURATION = 20                   # Recording duration in seconds
-TARGET_SAMPLE_RATE = 16000      # Sample rate (16000 Hz is native for Whisper)
-#TEMP_AUDIO_FILE = "capture.wav" # Temporary output file
+from config import (
+    WHISPER_URL,
+    OLLAMA_HOST,
+    LLM_MODEL,
+    CHUNK_DURATION,
+    TARGET_SAMPLE_RATE,
+    BLOCK_SIZE
+)
 
-# IP of remote server
-SERVER_IP = "192.168.0.180"
 
-# Service endpoints
-OLLAMA_HOST = f"http://{SERVER_IP}:30068"
-WHISPER_URL = f"http://{SERVER_IP}:8000/v1/audio/transcriptions"
-LLM_MODEL = "qwen2.5:3b"
+
+
+audio_queue = queue.Queue()
+running = True
 
 # Record local system audio
 def record_system_audio(duration, sample_rate):
