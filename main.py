@@ -8,7 +8,7 @@ import ollama
 # -------------------------
 # Configuration and settings
 # -------------------------
-DURATION = 30                   # Recording duration in seconds
+DURATION = 20                   # Recording duration in seconds
 TARGET_SAMPLE_RATE = 16000      # Sample rate (16000 Hz is native for Whisper)
 TEMP_AUDIO_FILE = "capture.wav" # Temporary output file
 
@@ -28,7 +28,7 @@ def record_system_audio(duration, sample_rate, output_path):
 
     loopback_mic = sc.get_microphone(id=default_speaker.id, include_loopback=True)
 
-    with loopback_mic.recorder(samplerate=sample_rate) as mic:
+    with loopback_mic.recorder(samplerate=sample_rate, blocksize=4092) as mic:
         audio_data = mic.record(numframes=sample_rate * duration)
 
     # Converts stereo to mono 
@@ -82,7 +82,7 @@ def summarize_remote(transcript_text):
             model=LLM_MODEL,
             messages=[{
                 'role': 'user',
-                'content': f"Oppsummer følgende transkripsjon i korte kulepunkter på norsk:\n\n{transcript_text}"
+                'content': f"Summarize transcription in short bullet points:\n\n{transcript_text}"
             }]
         )
         return response['message']['content']
