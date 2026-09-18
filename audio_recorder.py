@@ -20,9 +20,10 @@ def create_wav_buffer(audio_mono: np.ndarray, sample_rate: int) -> io.BytesIO:
     return wav_buffer
 
 def capture_audio_loop(audio_queue, running_flag):
-    # Continuously capture system audio into ram and push to queue
     default_speaker = sc.default_speaker()
-    loopback_mic = sc.get_microphone(id=default_speaker, include_loopback=True)
+    
+    # Pass default_speaker.id 
+    loopback_mic = sc.get_microphone(id=default_speaker.id, include_loopback=True)
 
     print(f"Listening continuously on: {default_speaker.name}")
 
@@ -33,26 +34,24 @@ def capture_audio_loop(audio_queue, running_flag):
     with loopback_mic.recorder(samplerate=TARGET_SAMPLE_RATE, 
                                                 blocksize=BLOCK_SIZE) as mic:
         while running_flag():
-            # Capture raw audio slices
             raw_data = mic.record(numframes=total_frames)
 
-            # Convert from stereo to mono
             if raw_data.ndim > 1 and raw_data.shape[1] > 1:
                 audio_mono = np.mean(raw_data, axis=1)
             else:
                 audio_mono = raw_data.flatten()
 
-    # Add trailing audio from previous chunk to avoind word clipping
-    if len(previous_overlap) > 0:
-        comined_audio = np.concatenate((previous_overlap, audio_mono))
-    else:
-        comined_audio = audio_mono
+             # Add trailing audio from previous chunk to avoind word clipping
+            if len(previous_overlap) > 0:
+                combined_audio = np.concatenate((previous_overlap, audio_mono))
+            else:
+                combined_audio = audio_mono
 
-    # Store end of audio chunk to overlap into next audio chunk
-    previous_overlap = audio_mono[-overlap_frames:]
+            # Store end of audio chunk to overlap into next audio chunk
+            previous_overlap = audio_mono[-overlap_frames:]
 
-    # Push audio chunk into queue
-    audio_queue.put(comined_audio)
+            # Push audio chunk into queue
+            audio_queue.put(combined_audio)
 
             
 
