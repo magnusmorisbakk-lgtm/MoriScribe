@@ -3,13 +3,13 @@ import queue
 import signal
 import threading
 import time
-import warnings
-
 from audio_recorder import capture_audio_loop
 from whisper_client import transcribe_audio_chunk
+from summarizer import summarize_transcript
 
 audio_queue = queue.Queue()
 running = True
+transcript_history = []
 
 def transcription():
     # Pulls audio arrays from queue and POSTS to whipser API
@@ -23,6 +23,7 @@ def transcription():
         if trancript:
             timestamp = time.strftime("%H:%M:%S")
             print(f"{timestamp}: {trancript}")
+            transcript_history.append(trancript)
 
         audio_queue.task_done()
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     )
     transcribe_thread = threading.Thread(
         target=transcription,
-        daemon=True
+        daemon=False
     )
 
     capture_thread.start()
@@ -54,5 +55,15 @@ if __name__ == "__main__":
         time.sleep(0.5)
 
     capture_thread.join(timeout=2)
-    transcribe_thread.join(timeout=5)
+    audio_queue.join()
+    transcribe_thread.join()
+    
+
+    full_transcript = "\n".join(transcript_history)
+    if full_transcript:
+        print("\n--- Generating summary ---")
+        summary  = summarize_transcript(full_transcript)
+        if summary:
+            print(f"{summary}")
+
     print("EXIT")
