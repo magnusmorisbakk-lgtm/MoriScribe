@@ -21,7 +21,8 @@ def transcription():
 
         trancript = transcribe_audio_chunk(audio_data)
         if trancript:
-            print(f"Live: {trancript}")
+            timestamp = time.strftime("%H:%M:%S")
+            print(f"{timestamp}: {trancript}")
 
         audio_queue.task_done()
 

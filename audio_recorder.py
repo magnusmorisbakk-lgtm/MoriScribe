@@ -3,12 +3,12 @@ import io
 import wave
 import numpy as np
 import warnings
+import soundcard as sc
+from soundcard.mediafoundation import SoundcardRuntimeWarning
 warnings.filterwarnings(
     "ignore",
-    message="data discontinuity in recording",
-    module=r"soundcard\.mediafoundation"
+    category=SoundcardRuntimeWarning
 )
-import soundcard as sc
 from config import CHUNK_DURATION, OVERLAP_DURATION, TARGET_SAMPLE_RATE, BLOCK_SIZE
 
 def create_wav_buffer(audio_mono: np.ndarray, sample_rate: int) -> io.BytesIO:
