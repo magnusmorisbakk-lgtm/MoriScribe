@@ -15,7 +15,7 @@ def transcribe_audio_chunk(audio_data: np.ndarray) -> str | None:
             "language": "no"
         }
 
-        response = requests.post(WHISPER_URL, files=files, data=data, timeout=10)
+        response = requests.post(WHISPER_URL, files=files, data=data, timeout=5)
         response.raise_for_status()
 
         result = response.json()

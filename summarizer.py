@@ -11,6 +11,7 @@ def summarize_transcript(transcript: str) -> str:
 
     prompt = (
         "Summarize the following transcription into concise bullet points. "
+        "Summarize in the same language that the transcription is given in."
         "Focus on key facts and main topics:\n\n"
         f"{transcript}"
     )

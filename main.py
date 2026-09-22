@@ -19,19 +19,25 @@ def transcription():
         except queue.Empty:
             continue
 
-        transcript = transcribe_audio_chunk(audio_data)
-        if transcript:
-            timestamp = time.strftime("%H:%M:%S")
-            print(f"{timestamp}: {transcript}")
-            transcript_history.append(transcript)
-
-        audio_queue.task_done()
+        try: 
+            transcript = transcribe_audio_chunk(audio_data)
+            if transcript:
+                timestamp = time.strftime("%H:%M:%S")
+                print(f"{timestamp}: {transcript}")
+                transcript_history.append(transcript)
+        except Exception as err:
+            print(f"\nError processing audio chunk]: {err}")
+        finally:
+            # task_done() is always called, to avoid queue.join() causing deadlocks
+            audio_queue.task_done()
+        
 
 def exit(sig, frame):
     # Soft exit when stopping program (Ctrl + C)
     global running
     print("\nStopping transcription")
     running = False
+
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, exit)
@@ -52,13 +58,15 @@ if __name__ == "__main__":
     print("Continous transcription. Ctrl+C to stop\n")
 
     while running:
-        time.sleep(0.5)
-
+        time.sleep(0.2)
+   
+    # Wait for audio capture thread to wrap up
     capture_thread.join(timeout=2)
-    audio_queue.join()
-    transcribe_thread.join(timeout=5)
-    
 
+    # Wait for transcribe thread to empty queue
+    transcribe_thread.join(timeout=7)
+    
+    # Generate final transcription summary
     full_transcript = "\n".join(transcript_history)
     if full_transcript:
         print("\n--- Generating summary ---")
