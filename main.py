@@ -19,11 +19,11 @@ def transcription():
         except queue.Empty:
             continue
 
-        trancript = transcribe_audio_chunk(audio_data)
-        if trancript:
+        transcript = transcribe_audio_chunk(audio_data)
+        if transcript:
             timestamp = time.strftime("%H:%M:%S")
-            print(f"{timestamp}: {trancript}")
-            transcript_history.append(trancript)
+            print(f"{timestamp}: {transcript}")
+            transcript_history.append(transcript)
 
         audio_queue.task_done()
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     capture_thread.join(timeout=2)
     audio_queue.join()
-    transcribe_thread.join()
+    transcribe_thread.join(timeout=5)
     
 
     full_transcript = "\n".join(transcript_history)
