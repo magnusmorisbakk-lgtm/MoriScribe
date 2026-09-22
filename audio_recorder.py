@@ -9,7 +9,20 @@ warnings.filterwarnings(
     "ignore",
     category=SoundcardRuntimeWarning
 )
-from config import CHUNK_DURATION, OVERLAP_DURATION, TARGET_SAMPLE_RATE, BLOCK_SIZE
+
+from config import (
+    CHUNK_DURATION, 
+    OVERLAP_DURATION, 
+    TARGET_SAMPLE_RATE, 
+    BLOCK_SIZE, 
+    RMS_THRESHOLD
+)
+
+def get_rms(audio_data: np.npdarray) -> float:
+    # Calculate Root Mean Square (RMS) for audio
+    if len(audio_data) == 0:
+        return 0
+    return float(np.sqrt(np.mean(audio_data ** 2)))
 
 def create_wav_buffer(audio_mono: np.ndarray, sample_rate: int) -> io.BytesIO:
     # Create in memory byte buffer, instead of creating a temp .wav file
@@ -56,8 +69,9 @@ def capture_audio_loop(audio_queue, running_flag):
             # Store end of audio chunk to overlap into next audio chunk
             previous_overlap = audio_mono[-overlap_frames:]
 
-            # Push audio chunk into queue
-            audio_queue.put(combined_audio)
+            # Audio chunk is skipped if energy reading is lower than threshold
+            if get_rms(combined_audio) >= RMS_THRESHOLD:
+                audio_queue.put(combined_audio)
 
             
 
