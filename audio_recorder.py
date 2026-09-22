@@ -2,6 +2,12 @@
 import io
 import wave
 import numpy as np
+import warnings
+warnings.filterwarnings(
+    "ignore",
+    message="data discontinuity in recording",
+    module=r"soundcard\.mediafoundation"
+)
 import soundcard as sc
 from config import CHUNK_DURATION, OVERLAP_DURATION, TARGET_SAMPLE_RATE, BLOCK_SIZE
 
