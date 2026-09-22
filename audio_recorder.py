@@ -18,7 +18,7 @@ from config import (
     RMS_THRESHOLD
 )
 
-def get_rms(audio_data: np.npdarray) -> float:
+def get_rms(audio_data: np.ndarray) -> float:
     # Calculate Root Mean Square (RMS) for audio
     if len(audio_data) == 0:
         return 0

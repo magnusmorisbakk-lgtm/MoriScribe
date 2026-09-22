@@ -84,7 +84,7 @@ volumes:
     
 3.  **Install dependencies:**
     ```Bash
-    python -m pip install soundcard numpy requests ollama
+    python -m pip install soundcard numpy requests ollama python-dotenv
     ```
     
 
